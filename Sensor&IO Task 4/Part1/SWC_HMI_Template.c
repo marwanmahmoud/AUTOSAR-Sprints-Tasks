@@ -1,41 +1,17 @@
-/**
- *
- * \file SWC_HMI_Template.c
- * \brief Rte Component Template for AUTOSAR SWC: SWC_HMI
- *
- * \author Sprints AUTOSAR Authoring Tool (SAAT) v1.0.2
- * Generated on 7/25/2020 04:13 PM
- *
- * For any inquiries: hassan.m.farahat@gmail.com
- *
- */
-
 #include "Rte_SWC_HMI.h"
-
-
-/**
- *
- * Runnable RE_HMI_Seat_Mode_Changed
- *
- * Triggered By:
- *  - DataReceivedEventImpl.DRE_rpSeatModeBtn_SeatModeBtn
- *
- */
-
-void RE_HMI_Seat_Mode_Changed (void)
+*----------------------------Static function-------------*
+static Impl_MultiStateBtnType btn_state_map (uint8 value)
 {
-	Std_ReturnType status;
-	Impl_SeatModeBtnType SeatModeBtn;
-	uint8 SeatCtrlMode = RTE_MODE_SeatCtrlMode_INIT;
-
-	/* Data Receive Points */
-	status = Rte_Read_rpSeatModeBtn_SeatModeBtn(&SeatModeBtn);
+	Impl_MultiStateBtnType state;
+	if(vlaue==1)
+		state= MULTI_STATE_BTN_MINUS;
+	else if (value==2)
+		satet=MULTI_STATE_BTN_PLUS;
+	else 
+		state=MULTI_STATE_BTN_INIT;
 	
-	/* Mode Switch Points */
-	status = Rte_Switch_ppSeatCtrlMode_SeatCtrlMode(SeatCtrlMode);
-	
+	return state;
 }
-
 
 /**
  *
@@ -49,22 +25,32 @@ void RE_HMI_Seat_Mode_Changed (void)
 void RE_HMI_MainFunction (void)
 {
 	Std_ReturnType status;
-	MultiStateBtnType HeightBtnState;
-	MultiStateBtnType SlideBtnState;
-	MultiStateBtnType InclineBtnState;
-	uint8 DE_Height;
-	uint8 DE_Slide;
-	uint8 DE_Incline;
+	Impl_MultiStateBtnType HeightBtnState;
+	Impl_MultiStateBtnType SlideBtnState;
+	Impl_MultiStateBtnType inclineBtnState;
+	uint8 Height;
+	uint8 Incline;
+	uint8 Slide;
+	bool Isupdated;
+	/* Data Receive Points */
+	status = Rte_Read_rpSeatCtrlData_Height(&Height);
+	Isupdated =Rte_Isupdated_rpSeatCtrlData_Height();
+	if(status==RTE_E_OK&Isupdated==1)
+		HeightBtnState= btn_state_map(Height);
+	status = Rte_Read_rpSeatCtrlData_Incline(&Incline);
+	Isupdated =Rte_Isupdated_rpSeatCtrlData_Incline();
+	if(status==RTE_E_OK&Isupdated==1)
+		inclineBtnState= btn_state_map(Incline);
+	status = Rte_Read_rpSeatCtrlData_Slide(&Slide);
+	Isupdated =Rte_Isupdated_rpSeatCtrlData_Slide();
+	if(status==RTE_E_OK&Isupdated==1)
+		SlideBtnState= btn_state_map(Slide);
 
 	/* Data Send Points */
 	status = Rte_Write_ppSeatCtrlBtns_HeightBtnState(HeightBtnState);
 	status = Rte_Write_ppSeatCtrlBtns_SlideBtnState(SlideBtnState);
-	status = Rte_Write_ppSeatCtrlBtns_InclineBtnState(InclineBtnState);
+	status = Rte_Write_ppSeatCtrlBtns_inclineBtnState(inclineBtnState);
 	
-	/* Data Receive Points */
-	status = Rte_Read_rpSeatCtrlData_DE_Height(&DE_Height);
-	status = Rte_Read_rpSeatCtrlData_DE_Slide(&DE_Slide);
-	status = Rte_Read_rpSeatCtrlData_DE_Incline(&DE_Incline);
+	
 	
 }
-
